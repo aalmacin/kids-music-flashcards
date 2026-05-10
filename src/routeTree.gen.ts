@@ -9,27 +9,87 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as QuizIdSetupRouteImport } from './routes/quiz/$id/setup'
 
-export interface FileRoutesByFullPath {}
-export interface FileRoutesByTo {}
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuizIdSetupRoute = QuizIdSetupRouteImport.update({
+  id: '/quiz/$id/setup',
+  path: '/quiz/$id/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/settings': typeof SettingsRoute
+  '/quiz/$id/setup': typeof QuizIdSetupRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/settings': typeof SettingsRoute
+  '/quiz/$id/setup': typeof QuizIdSetupRoute
+}
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/settings': typeof SettingsRoute
+  '/quiz/$id/setup': typeof QuizIdSetupRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: never
+  fullPaths: '/' | '/settings' | '/quiz/$id/setup'
   fileRoutesByTo: FileRoutesByTo
-  to: never
-  id: '__root__'
+  to: '/' | '/settings' | '/quiz/$id/setup'
+  id: '__root__' | '/' | '/settings' | '/quiz/$id/setup'
   fileRoutesById: FileRoutesById
 }
-export interface RootRouteChildren {}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  SettingsRoute: typeof SettingsRoute
+  QuizIdSetupRoute: typeof QuizIdSetupRoute
 }
 
-const rootRouteChildren: RootRouteChildren = {}
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quiz/$id/setup': {
+      id: '/quiz/$id/setup'
+      path: '/quiz/$id/setup'
+      fullPath: '/quiz/$id/setup'
+      preLoaderRoute: typeof QuizIdSetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  SettingsRoute: SettingsRoute,
+  QuizIdSetupRoute: QuizIdSetupRoute,
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
