@@ -10,12 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ScoresRouteImport } from './routes/scores'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as QuizIdSetupRouteImport } from './routes/quiz/$id/setup'
+import { Route as QuizIdResultsRouteImport } from './routes/quiz/$id/results'
+import { Route as QuizIdPlayRouteImport } from './routes/quiz/$id/play'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScoresRoute = ScoresRouteImport.update({
+  id: '/scores',
+  path: '/scores',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -28,34 +36,75 @@ const QuizIdSetupRoute = QuizIdSetupRouteImport.update({
   path: '/quiz/$id/setup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuizIdResultsRoute = QuizIdResultsRouteImport.update({
+  id: '/quiz/$id/results',
+  path: '/quiz/$id/results',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuizIdPlayRoute = QuizIdPlayRouteImport.update({
+  id: '/quiz/$id/play',
+  path: '/quiz/$id/play',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/scores': typeof ScoresRoute
   '/settings': typeof SettingsRoute
+  '/quiz/$id/play': typeof QuizIdPlayRoute
+  '/quiz/$id/results': typeof QuizIdResultsRoute
   '/quiz/$id/setup': typeof QuizIdSetupRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/scores': typeof ScoresRoute
   '/settings': typeof SettingsRoute
+  '/quiz/$id/play': typeof QuizIdPlayRoute
+  '/quiz/$id/results': typeof QuizIdResultsRoute
   '/quiz/$id/setup': typeof QuizIdSetupRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/scores': typeof ScoresRoute
   '/settings': typeof SettingsRoute
+  '/quiz/$id/play': typeof QuizIdPlayRoute
+  '/quiz/$id/results': typeof QuizIdResultsRoute
   '/quiz/$id/setup': typeof QuizIdSetupRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/settings' | '/quiz/$id/setup'
+  fullPaths:
+    | '/'
+    | '/scores'
+    | '/settings'
+    | '/quiz/$id/play'
+    | '/quiz/$id/results'
+    | '/quiz/$id/setup'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/settings' | '/quiz/$id/setup'
-  id: '__root__' | '/' | '/settings' | '/quiz/$id/setup'
+  to:
+    | '/'
+    | '/scores'
+    | '/settings'
+    | '/quiz/$id/play'
+    | '/quiz/$id/results'
+    | '/quiz/$id/setup'
+  id:
+    | '__root__'
+    | '/'
+    | '/scores'
+    | '/settings'
+    | '/quiz/$id/play'
+    | '/quiz/$id/results'
+    | '/quiz/$id/setup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ScoresRoute: typeof ScoresRoute
   SettingsRoute: typeof SettingsRoute
+  QuizIdPlayRoute: typeof QuizIdPlayRoute
+  QuizIdResultsRoute: typeof QuizIdResultsRoute
   QuizIdSetupRoute: typeof QuizIdSetupRoute
 }
 
@@ -66,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scores': {
+      id: '/scores'
+      path: '/scores'
+      fullPath: '/scores'
+      preLoaderRoute: typeof ScoresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -82,12 +138,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizIdSetupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quiz/$id/results': {
+      id: '/quiz/$id/results'
+      path: '/quiz/$id/results'
+      fullPath: '/quiz/$id/results'
+      preLoaderRoute: typeof QuizIdResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quiz/$id/play': {
+      id: '/quiz/$id/play'
+      path: '/quiz/$id/play'
+      fullPath: '/quiz/$id/play'
+      preLoaderRoute: typeof QuizIdPlayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ScoresRoute: ScoresRoute,
   SettingsRoute: SettingsRoute,
+  QuizIdPlayRoute: QuizIdPlayRoute,
+  QuizIdResultsRoute: QuizIdResultsRoute,
   QuizIdSetupRoute: QuizIdSetupRoute,
 }
 export const routeTree = rootRouteImport

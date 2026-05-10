@@ -29,7 +29,7 @@ function SetupScreen() {
         ? { type: 'timed', seconds: value.timedSeconds }
         : { type: 'fixed', count: value.fixedCount }
       startSession(quiz!, mode, value.difficulty)
-      navigate({ to: '/quiz/$id/play' as any, params: { id } })
+      navigate({ to: '/quiz/$id/play', params: { id } })
     },
   })
 
