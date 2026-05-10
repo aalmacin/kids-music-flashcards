@@ -7,7 +7,7 @@ import { usePlayerName } from '../../../hooks/usePlayerName'
 import { HighScoresTable } from '../../../components/HighScoresTable'
 import { Confetti } from '../../../components/Confetti'
 import { getQuiz } from '../../../quizzes/registry'
-import { modeKey } from '../../../lib/storage'
+import { modeKey, getHighScores } from '../../../lib/storage'
 
 export const Route = createFileRoute('/quiz/$id/results')({
   component: ResultsScreen,
@@ -26,7 +26,8 @@ function ResultsScreen() {
   useEffect(() => {
     if (!session || saved) return
     const mk = modeKey(session.mode)
-    const existing = quizScores[mk]?.[session.difficulty] ?? []
+    const currentScores = getHighScores()
+    const existing = currentScores[id]?.[mk]?.[session.difficulty] ?? []
     const best = existing[0]?.score ?? 0
     const accuracy = session.attempted > 0 ? Math.round((session.score / session.attempted) * 100) : 0
 

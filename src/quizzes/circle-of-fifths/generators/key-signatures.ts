@@ -1,12 +1,6 @@
 import type { Question, QuizGenerator } from '../../../lib/types'
 import { CIRCLE, getKeySignature, allMajorKeys } from '../../../lib/circle-of-fifths'
-
-function randomFrom<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)] }
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr]
-  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]] }
-  return a
-}
+import { randomFrom, shuffle } from '../../utils'
 
 type QuestionVariant = 'count' | 'which-key' | 'name-accidentals'
 

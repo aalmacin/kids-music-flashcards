@@ -8,7 +8,7 @@ export function useQuiz() {
     ? session.questions[session.currentIndex] ?? null
     : null
 
-  const isFinished = session?.finishedAt !== null
+  const isFinished = session !== null && session.finishedAt !== null
 
   function answer(selected: string) {
     if (!session || isFinished) return

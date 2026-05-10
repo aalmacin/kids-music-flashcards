@@ -16,8 +16,11 @@ function pickDifficulty(difficulty: Difficulty): Exclude<Difficulty, 'mixed'> {
 function generateQuestions(quiz: QuizDefinition, count: number, difficulty: Difficulty): Question[] {
   const questions: Question[] = []
   const usedTexts = new Set<string>()
+  let attempts = 0
+  const maxAttempts = count * 20  // safety limit
 
-  while (questions.length < count) {
+  while (questions.length < count && attempts < maxAttempts) {
+    attempts++
     const generator = quiz.generators[Math.floor(Math.random() * quiz.generators.length)]
     const d = pickDifficulty(difficulty)
     const q = generator(d, [])

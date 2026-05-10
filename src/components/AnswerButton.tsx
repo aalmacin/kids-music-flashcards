@@ -16,7 +16,7 @@ const STATE_CLASSES: Record<Props['state'], string> = {
 export const AnswerButton: FC<Props> = ({ label, state, onClick }) => (
   <button
     onClick={state === 'default' ? onClick : undefined}
-    disabled={state === 'wrong' || state === 'disabled'}
+    disabled={state === 'wrong' || state === 'disabled' || state === 'correct'}
     className={`w-full rounded-2xl px-4 py-5 text-xl font-bold font-display transition-all duration-150 shadow-md ${STATE_CLASSES[state]}`}
   >
     {label}
