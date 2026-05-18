@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useStore } from '@tanstack/react-store'
 import { quizSessionStore, clearSession } from '../../../store/quiz-session'
 import { useHighScores } from '../../../hooks/useHighScores'
@@ -21,10 +21,11 @@ function ResultsScreen() {
   const { name } = usePlayerName()
   const { quizScores, addScore } = useHighScores(id)
   const [isNewBest, setIsNewBest] = useState(false)
-  const [saved, setSaved] = useState(false)
+  const savedRef = useRef(false)
 
   useEffect(() => {
-    if (!session || saved) return
+    if (!session || savedRef.current) return
+    savedRef.current = true
     const mk = modeKey(session.mode)
     const currentScores = getHighScores()
     const existing = currentScores[id]?.[mk]?.[session.difficulty] ?? []
@@ -38,7 +39,6 @@ function ResultsScreen() {
       difficulty: session.difficulty,
       entry: { name: name ?? 'Anonymous', score: session.score, accuracy, date: new Date().toISOString() },
     })
-    setSaved(true)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!session || !quiz) {
