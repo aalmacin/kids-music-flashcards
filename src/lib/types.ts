@@ -28,7 +28,6 @@ export interface QuizDefinition {
 export interface QuizSession {
   quizId: string
   mode: QuizMode
-  difficulty: Difficulty
   questions: Question[]
   currentIndex: number
   score: number
@@ -49,9 +48,6 @@ export type HighScores = Record<
   string, // quizId
   Record<
     string, // mode key e.g. "timed-60" | "fixed-20"
-    Record<
-      Difficulty,
-      HighScoreEntry[]  // top 5
-    >
+    HighScoreEntry[]
   >
 >

@@ -3,7 +3,7 @@ import { useForm } from '@tanstack/react-form'
 import { usePlayerName } from '../../../hooks/usePlayerName'
 import { getQuiz } from '../../../quizzes/registry'
 import { startSession } from '../../../store/quiz-session'
-import type { Difficulty, QuizMode } from '../../../lib/types'
+import type { QuizMode } from '../../../lib/types'
 
 export const Route = createFileRoute('/quiz/$id/setup')({
   component: SetupScreen,
@@ -21,14 +21,13 @@ function SetupScreen() {
       modeType: 'fixed' as 'timed' | 'fixed',
       fixedCount: 20 as 10 | 20 | 30 | 50,
       timedSeconds: 60 as 30 | 60 | 90 | 120,
-      difficulty: 'mixed' as Difficulty,
     },
     onSubmit: ({ value }) => {
       if (value.playerName.trim()) saveName(value.playerName.trim())
       const mode: QuizMode = value.modeType === 'timed'
         ? { type: 'timed', seconds: value.timedSeconds }
         : { type: 'fixed', count: value.fixedCount }
-      startSession(quiz!, mode, value.difficulty)
+      startSession(quiz!, mode)
       navigate({ to: '/quiz/$id/play', params: { id } })
     },
   })
@@ -110,23 +109,6 @@ function SetupScreen() {
             </form.Field>
           )}
         </form.Subscribe>
-
-        <form.Field name="difficulty">
-          {field => (
-            <div>
-              <label className="block font-black text-gray-600 mb-2">Difficulty</label>
-              <div className="grid grid-cols-2 gap-3">
-                {(['easy', 'medium', 'hard', 'mixed'] as const).map(d => (
-                  <button key={d} type="button"
-                    onClick={() => field.handleChange(d)}
-                    className={`rounded-xl py-3 font-bold border-2 capitalize transition-all ${field.state.value === d ? 'bg-purple-600 text-white border-purple-600' : 'border-purple-200 text-purple-600 hover:border-purple-400'}`}>
-                    {d}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </form.Field>
 
         <button type="submit" className="w-full bg-green-500 hover:bg-green-600 text-white font-black text-xl rounded-2xl py-4 shadow-lg transition-all active:scale-95">
           Start Quiz!

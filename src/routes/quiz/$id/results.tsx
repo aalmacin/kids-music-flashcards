@@ -21,6 +21,7 @@ function ResultsScreen() {
   const { name } = usePlayerName()
   const { quizScores, addScore } = useHighScores(id)
   const [isNewBest, setIsNewBest] = useState(false)
+  const [unrankedEntry, setUnrankedEntry] = useState<import('../../../lib/types').HighScoreEntry | null>(null)
   const savedRef = useRef(false)
 
   useEffect(() => {
@@ -28,17 +29,22 @@ function ResultsScreen() {
     savedRef.current = true
     const mk = modeKey(session.mode)
     const currentScores = getHighScores()
-    const existing = currentScores[id]?.[mk]?.[session.difficulty] ?? []
+    const existing = currentScores[id]?.[mk] ?? []
     const best = existing[0]?.score ?? 0
     const accuracy = session.attempted > 0 ? Math.round((session.score / session.attempted) * 100) : 0
+    const entry = { name: name ?? 'Anonymous', score: session.score, accuracy, date: new Date().toISOString() }
 
     if (session.score > best) setIsNewBest(true)
 
-    addScore({
-      mode: session.mode,
-      difficulty: session.difficulty,
-      entry: { name: name ?? 'Anonymous', score: session.score, accuracy, date: new Date().toISOString() },
-    })
+    const isFull = existing.length >= 10
+    const min = isFull ? existing[existing.length - 1].score : -Infinity
+
+    if (isFull && session.score < min) {
+      // Score doesn't make the leaderboard — show it but don't store
+      setUnrankedEntry(entry)
+    } else {
+      addScore({ mode: session.mode, entry })
+    }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!session || !quiz) {
@@ -47,7 +53,8 @@ function ResultsScreen() {
 
   const accuracy = session.attempted > 0 ? Math.round((session.score / session.attempted) * 100) : 0
   const mk = modeKey(session.mode)
-  const leaderboard = quizScores[mk]?.[session.difficulty] ?? []
+  const leaderboard = quizScores[mk] ?? []
+  const displayEntries = unrankedEntry ? [...leaderboard, unrankedEntry] : leaderboard
 
   function handleRetry() {
     clearSession()
@@ -70,7 +77,7 @@ function ResultsScreen() {
 
       <div className="bg-white rounded-2xl p-5 shadow-sm">
         <h2 className="font-black text-gray-700 mb-3">Leaderboard</h2>
-        <HighScoresTable entries={leaderboard} />
+        <HighScoresTable entries={displayEntries} />
       </div>
 
       <div className="flex gap-3">

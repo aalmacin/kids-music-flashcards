@@ -1,5 +1,5 @@
 import { Store } from '@tanstack/react-store'
-import type { QuizSession, Question, QuizMode, Difficulty, QuizDefinition } from '../lib/types'
+import type { QuizSession, Question, QuizMode, QuizDefinition } from '../lib/types'
 
 interface QuizSessionState {
   session: QuizSession | null
@@ -7,23 +7,21 @@ interface QuizSessionState {
 
 export const quizSessionStore = new Store<QuizSessionState>({ session: null })
 
-function pickDifficulty(difficulty: Difficulty): Exclude<Difficulty, 'mixed'> {
-  if (difficulty !== 'mixed') return difficulty
+function pickDifficulty(): 'easy' | 'medium' | 'hard' {
   const options = ['easy', 'medium', 'hard'] as const
   return options[Math.floor(Math.random() * 3)]
 }
 
-function generateQuestions(quiz: QuizDefinition, count: number, difficulty: Difficulty): Question[] {
+function generateQuestions(quiz: QuizDefinition, count: number): Question[] {
   const questions: Question[] = []
   const usedTexts = new Set<string>()
   let attempts = 0
-  const maxAttempts = count * 20  // safety limit
+  const maxAttempts = count * 20
 
   while (questions.length < count && attempts < maxAttempts) {
     attempts++
     const generator = quiz.generators[Math.floor(Math.random() * quiz.generators.length)]
-    const d = pickDifficulty(difficulty)
-    const q = generator(d, [])
+    const q = generator(pickDifficulty(), [])
     if (!usedTexts.has(q.text)) {
       usedTexts.add(q.text)
       questions.push(q)
@@ -32,15 +30,14 @@ function generateQuestions(quiz: QuizDefinition, count: number, difficulty: Diff
   return questions
 }
 
-export function startSession(quiz: QuizDefinition, mode: QuizMode, difficulty: Difficulty): void {
-  const count = mode.type === 'fixed' ? mode.count : 999 // timed mode generates a large pool
-  const questions = generateQuestions(quiz, Math.min(count, 200), difficulty)
+export function startSession(quiz: QuizDefinition, mode: QuizMode): void {
+  const count = mode.type === 'fixed' ? mode.count : 999
+  const questions = generateQuestions(quiz, Math.min(count, 200))
 
   quizSessionStore.setState(() => ({
     session: {
       quizId: quiz.id,
       mode,
-      difficulty,
       questions,
       currentIndex: 0,
       score: 0,
