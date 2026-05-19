@@ -1,15 +1,15 @@
-import type { Question, QuizGenerator } from '../../../lib/types'
+import type { Question, QuizEnumerator } from '../../../lib/types'
 import { getParallelMinor, allMajorKeys } from '../../../lib/circle-of-fifths'
-import { randomFrom, shuffle } from '../../utils'
+import { shuffle } from '../../utils'
 
-export const generateParallelKeyQuestion: QuizGenerator = (difficulty): Question => {
-  const key = randomFrom(allMajorKeys())
-  const answer = getParallelMinor(key)
+export const enumerateParallelKeyQuestions: QuizEnumerator = (): Question[] => {
   const allMinors = allMajorKeys().map(k => k + 'm')
-  const distractors = shuffle(allMinors.filter(m => m !== answer)).slice(0, 3)
-  const options = shuffle([answer, ...distractors]) as [string, string, string, string]
-  const text = difficulty === 'easy'
-    ? `What is the parallel minor of ${key} major?`
-    : `Which minor key has the same root note as ${key} major?`
-  return { text, options, answer, difficulty }
+  return allMajorKeys().flatMap(key => {
+    const answer = getParallelMinor(key)
+    const distractors = shuffle(allMinors.filter(m => m !== answer)).slice(0, 3)
+    return [
+      { text: `What is the parallel minor of ${key} major?`, options: shuffle([answer, ...distractors]) as [string, string, string, string], answer, difficulty: 'easy' as const },
+      { text: `Which minor key has the same root note as ${key} major?`, options: shuffle([answer, ...distractors]) as [string, string, string, string], answer, difficulty: 'hard' as const },
+    ]
+  })
 }

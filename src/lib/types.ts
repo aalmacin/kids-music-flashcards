@@ -11,10 +11,7 @@ export interface Question {
   difficulty: Exclude<Difficulty, 'mixed'>
 }
 
-export type QuizGenerator = (
-  difficulty: Exclude<Difficulty, 'mixed'>,
-  exclude?: string[]
-) => Question
+export type QuizEnumerator = () => Question[]
 
 export interface QuizDefinition {
   id: string
@@ -22,7 +19,7 @@ export interface QuizDefinition {
   description: string
   category: 'individual' | 'group' | 'master'
   topic: string
-  generators: QuizGenerator[]
+  generators: QuizEnumerator[]
 }
 
 export interface QuizSession {

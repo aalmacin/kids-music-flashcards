@@ -7,27 +7,14 @@ interface QuizSessionState {
 
 export const quizSessionStore = new Store<QuizSessionState>({ session: null })
 
-function pickDifficulty(): 'easy' | 'medium' | 'hard' {
-  const options = ['easy', 'medium', 'hard'] as const
-  return options[Math.floor(Math.random() * 3)]
-}
-
 function generateQuestions(quiz: QuizDefinition, count: number): Question[] {
-  const questions: Question[] = []
-  const usedTexts = new Set<string>()
-  let attempts = 0
-  const maxAttempts = count * 20
+  const pool = quiz.generators.flatMap(e => e())
 
-  while (questions.length < count && attempts < maxAttempts) {
-    attempts++
-    const generator = quiz.generators[Math.floor(Math.random() * quiz.generators.length)]
-    const q = generator(pickDifficulty(), [])
-    if (!usedTexts.has(q.text)) {
-      usedTexts.add(q.text)
-      questions.push(q)
-    }
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]]
   }
-  return questions
+  return pool.slice(0, count)
 }
 
 export function startSession(quiz: QuizDefinition, mode: QuizMode): void {

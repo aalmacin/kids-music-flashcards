@@ -1,43 +1,33 @@
-import type { Question, QuizGenerator } from '../../../lib/types'
+import type { Question, QuizEnumerator } from '../../../lib/types'
 import { CIRCLE, getStepsFrom, allMajorKeys } from '../../../lib/circle-of-fifths'
-import { randomFrom, randomInt, shuffle } from '../../utils'
+import { shuffle } from '../../utils'
 
-function pickDistractors(correct: string, count: number): string[] {
-  const all = allMajorKeys().filter(k => k !== correct)
-  const result: string[] = []
-  const correctIdx = CIRCLE.findIndex(e => e.major === correct)
-  const adjacent = [
-    CIRCLE[(correctIdx + 1) % 12].major,
-    CIRCLE[(correctIdx - 1 + 12) % 12].major,
-    CIRCLE[(correctIdx + 2) % 12].major,
-    CIRCLE[(correctIdx - 2 + 12) % 12].major,
-  ].filter(k => k !== correct)
+const ORDINALS = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth']
+const STEP_DIFFICULTIES = ['easy', 'easy', 'medium', 'medium', 'hard', 'hard'] as const
 
-  while (result.length < count && adjacent.length > 0) {
-    const idx = Math.floor(Math.random() * adjacent.length)
-    result.push(adjacent.splice(idx, 1)[0])
-  }
-  while (result.length < count) {
-    const pick = randomFrom(all.filter(k => !result.includes(k)))
-    result.push(pick)
-  }
-  return result
-}
-
-export const generateStepsQuestion: QuizGenerator = (difficulty): Question => {
-  const startKey = randomFrom(allMajorKeys())
-  const directionLabel = randomFrom(['clockwise', 'counterclockwise'])
-  const direction = directionLabel === 'clockwise' ? 1 : -1
-
-  const stepRange = difficulty === 'easy' ? [1, 2] : difficulty === 'medium' ? [1, 4] : [1, 6]
-  const steps = randomInt(stepRange[0], stepRange[1])
-
-  const answer = getStepsFrom(startKey, direction * steps)
-  const distractors = pickDistractors(answer, 3)
-  const options = shuffle([answer, ...distractors]) as [string, string, string, string]
-
-  const ordinal = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth'][steps]
-  const text = `Starting from ${startKey}, what key is ${ordinal} step ${directionLabel} on the Circle of Fifths?`
-
-  return { text, options, answer, difficulty }
+export const enumerateStepsQuestions: QuizEnumerator = (): Question[] => {
+  const directions = ['clockwise', 'counterclockwise'] as const
+  return allMajorKeys().flatMap(startKey => {
+    const startIdx = CIRCLE.findIndex(e => e.major === startKey)
+    const adjacentPool = [
+      CIRCLE[(startIdx + 1) % 12].major,
+      CIRCLE[(startIdx - 1 + 12) % 12].major,
+      CIRCLE[(startIdx + 2) % 12].major,
+      CIRCLE[(startIdx - 2 + 12) % 12].major,
+    ]
+    return directions.flatMap(directionLabel =>
+      [1, 2, 3, 4, 5, 6].map(steps => {
+        const direction = directionLabel === 'clockwise' ? 1 : -1
+        const answer = getStepsFrom(startKey, direction * steps)
+        const adjacent = adjacentPool.filter(k => k !== answer)
+        let distractors = shuffle(adjacent).slice(0, 3)
+        if (distractors.length < 3) {
+          const extra = allMajorKeys().filter(k => k !== answer && !distractors.includes(k))
+          distractors = [...distractors, ...shuffle(extra)].slice(0, 3)
+        }
+        const difficulty = STEP_DIFFICULTIES[steps - 1]
+        return { text: `Starting from ${startKey}, what key is ${ORDINALS[steps]} step ${directionLabel} on the Circle of Fifths?`, options: shuffle([answer, ...distractors]) as [string, string, string, string], answer, difficulty }
+      })
+    )
+  })
 }

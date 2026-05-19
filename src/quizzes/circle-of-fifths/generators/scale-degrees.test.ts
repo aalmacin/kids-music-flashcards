@@ -1,10 +1,22 @@
 import { describe, it, expect } from 'vitest'
-import { generateScaleDegreeQuestion } from './scale-degrees'
+import { enumerateScaleDegreeQuestions } from './scale-degrees'
 
-describe('generateScaleDegreeQuestion', () => {
-  it('has 4 options and a correct answer', () => {
-    const q = generateScaleDegreeQuestion('medium', [])
-    expect(q.options).toHaveLength(4)
-    expect(q.options).toContain(q.answer)
+describe('enumerateScaleDegreeQuestions', () => {
+  const questions = enumerateScaleDegreeQuestions()
+
+  it('enumerates 84 questions (12 keys × 7 degrees)', () => {
+    expect(questions).toHaveLength(84)
+  })
+
+  it('every question has 4 options including the correct answer', () => {
+    for (const q of questions) {
+      expect(q.options).toHaveLength(4)
+      expect(q.options).toContain(q.answer)
+    }
+  })
+
+  it('all question texts are unique', () => {
+    const texts = questions.map(q => q.text)
+    expect(new Set(texts).size).toBe(texts.length)
   })
 })

@@ -1,14 +1,16 @@
-import type { Question, QuizGenerator } from '../../../lib/types'
+import type { Question, QuizEnumerator } from '../../../lib/types'
 import { getDominant, getSubdominant, allMajorKeys } from '../../../lib/circle-of-fifths'
-import { randomFrom, shuffle } from '../../utils'
+import { shuffle } from '../../utils'
 
-export const generateDominantQuestion: QuizGenerator = (difficulty): Question => {
-  const key = randomFrom(allMajorKeys())
-  const askDominant = Math.random() > 0.5 || difficulty === 'easy'
-  const answer = askDominant ? getDominant(key) : getSubdominant(key)
-  const label = askDominant ? 'dominant (V)' : 'subdominant (IV)'
-  const distractors = shuffle(allMajorKeys().filter(k => k !== answer)).slice(0, 3)
-  const options = shuffle([answer, ...distractors]) as [string, string, string, string]
-  const text = `What is the ${label} of ${key} major?`
-  return { text, options, answer, difficulty }
+export const enumerateDominantQuestions: QuizEnumerator = (): Question[] => {
+  return allMajorKeys().flatMap(key => {
+    const dominant = getDominant(key)
+    const subdominant = getSubdominant(key)
+    const domDistractors = shuffle(allMajorKeys().filter(k => k !== dominant)).slice(0, 3)
+    const subDistractors = shuffle(allMajorKeys().filter(k => k !== subdominant)).slice(0, 3)
+    return [
+      { text: `What is the dominant (V) of ${key} major?`, options: shuffle([dominant, ...domDistractors]) as [string, string, string, string], answer: dominant, difficulty: 'easy' as const },
+      { text: `What is the subdominant (IV) of ${key} major?`, options: shuffle([subdominant, ...subDistractors]) as [string, string, string, string], answer: subdominant, difficulty: 'hard' as const },
+    ]
+  })
 }
