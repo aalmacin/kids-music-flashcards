@@ -56,7 +56,7 @@ export function recordAnswer(isCorrect: boolean): void {
     if (isCorrect) {
       const earned = s.wrongOnCurrent ? 0 : 1
       const nextIndex = s.currentIndex + 1
-      const isLast = s.mode.type === 'fixed' && nextIndex >= s.mode.count
+      const isLast = (s.mode.type === 'fixed' && nextIndex >= s.mode.count) || nextIndex >= s.questions.length
       return {
         session: {
           ...s,

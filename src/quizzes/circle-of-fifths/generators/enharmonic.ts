@@ -2,7 +2,7 @@ import type { Question, QuizGenerator } from '../../../lib/types'
 import { CIRCLE, getEnharmonic, allMajorKeys } from '../../../lib/circle-of-fifths'
 import { randomFrom, shuffle } from '../../utils'
 
-const ENHARMONIC_KEYS = CIRCLE.filter(e => e.enharmonic !== null).map(e => e.major)
+const ENHARMONIC_KEYS = CIRCLE.filter(e => e.enharmonic !== null).flatMap(e => [e.major, e.enharmonic!])
 
 export const generateEnharmonicQuestion: QuizGenerator = (difficulty): Question => {
   const key = randomFrom(ENHARMONIC_KEYS)
